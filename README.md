@@ -5,7 +5,9 @@ It relies on [OpenAPI Generator project](https://openapi-generator.tech/).
 We directly use the [OpenAPI Generator API](https://api.openapi-generator.tech) to generate the code from the remote 3GPP OpenAPI specs.
 
 > Note: This project is still under development and not ready for production use.
+> 
 > Note2: At the moment, code generation is not totally working. We are working on it.
+> 
 > Note3: Spec files must be remote files on github. We are working on a solution to make run the generator with local files and other sources.
 
 
