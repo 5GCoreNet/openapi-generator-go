@@ -16,6 +16,7 @@ var clientCmd = &cobra.Command{
 			Ref:             cmd.Flag("ref").Value.String(),
 			Path:            cmd.Flag("path").Value.String(),
 			Output:          cmd.Flag("output").Value.String(),
+			ExitOnFailure:   cmd.Flag("exit-on-failure").Value.String() == "true",
 		}
 		return g.Generate(cmd.Context(), generator.ClientMode)
 	},

@@ -1,12 +1,13 @@
 package generator
 
 import (
+	"github.com/5GCoreNet/openapi-generator-go/pkg/utils"
 	"github.com/spf13/cobra"
 )
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "generator",
+		Use:   "api-generator-go",
 		Short: "Generate code for a 5GC",
 		Long:  "Generate code for a 5GC",
 	}
@@ -16,6 +17,7 @@ var (
 	ref             string
 	path            string
 	output          string
+	exitOnFailure   bool
 )
 
 func Execute() error {
@@ -26,9 +28,10 @@ func init() {
 	rootCmd.AddCommand(clientCmd)
 	rootCmd.AddCommand(serverCmd)
 
-	rootCmd.PersistentFlags().StringVar(&repository, "repository", "", "URL to the OpenAPI specification repository")
-	rootCmd.PersistentFlags().StringVar(&repositoryOwner, "repository-owner", "", "Owner of the OpenAPI specification repository")
-	rootCmd.PersistentFlags().StringVar(&ref, "ref", "", "Commit hash or branch name of the OpenAPI specification repository")
-	rootCmd.PersistentFlags().StringVar(&path, "path", "", "Path to the OpenAPI specification file under the repository")
+	rootCmd.PersistentFlags().StringVar(&repository, "repository", utils.DefaultRepository, "URL to the OpenAPI specification repository")
+	rootCmd.PersistentFlags().StringVar(&repositoryOwner, "repository-owner", utils.DefaultRepositoryOwner, "Owner of the OpenAPI specification repository")
+	rootCmd.PersistentFlags().StringVar(&ref, "ref", utils.DefaultRef, "Commit hash or branch name of the OpenAPI specification repository")
+	rootCmd.PersistentFlags().StringVar(&path, "path", utils.DefaultPath, "Path to the OpenAPI specification folder under the repository")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "Output directory for the generated code")
+	rootCmd.PersistentFlags().BoolVar(&exitOnFailure, "exit-on-failure", true, "Exit on failure")
 }

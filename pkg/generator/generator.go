@@ -19,12 +19,12 @@ type Generator struct {
 	RepositoryOwner string
 	// Ref is the commit hash or branch name of the OpenAPI specification repository
 	Ref string
-	// Path is the path to the OpenAPI specification file under the repository
+	// Path is the path to the OpenAPI specification folder under the repository
 	Path string
 	// Output is the output directory for the generated code
 	Output string
-	// PackageName is the name of the package for the generated code. Package name should be as follows: github.com/<API_NAME>/
-	PackageName string
+	// ExitOnFailure is a flag to exit on error
+	ExitOnFailure bool
 }
 
 type input struct {
@@ -45,6 +45,14 @@ const (
 	ServerMode Mode = "server"
 )
 
+// Validate validates the generator configuration
+func (g *Generator) Validate() error {
+	if g.Output == "" {
+		return fmt.Errorf("output is required")
+	}
+	return nil
+}
+
 func (g *Generator) Generate(ctx context.Context, mode Mode) error {
 	var generatorUrl string
 	var subFolder string
@@ -64,7 +72,7 @@ func (g *Generator) Generate(ctx context.Context, mode Mode) error {
 	}
 	for _, url := range urls {
 		err := g.generate(ctx, url, generatorUrl, subFolder)
-		if err != nil {
+		if err != nil && g.ExitOnFailure {
 			return err
 		}
 	}
@@ -113,7 +121,8 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 	body, err := json.Marshal(input{
 		SwaggerUrl: url,
 		Options: map[string]string{
-			"packageName": g.PackageName + specName,
+			"packageName":   specName,
+			"isGoSubmodule": "true",
 		},
 	})
 	if err != nil {
@@ -155,6 +164,10 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 		return err
 	}
 	for _, file := range reader.File {
+		// Skip go.mod and go.sum files to avoid conflicts with the main project
+		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") {
+			continue
+		}
 		if err := utils.SaveFile(file, g.Output, specName, subFolder); err != nil {
 			return err
 		}
