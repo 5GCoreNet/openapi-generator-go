@@ -121,7 +121,7 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 	body, err := json.Marshal(input{
 		SwaggerUrl: url,
 		Options: map[string]string{
-			"packageName":   specName,
+			"packageName":   "openapi_" + specName,
 			"isGoSubmodule": "true",
 		},
 	})
