@@ -54,6 +54,9 @@ func (g *Generator) Validate() error {
 }
 
 func (g *Generator) Generate(ctx context.Context, mode Mode) error {
+	if err := g.Validate(); err != nil {
+		return err
+	}
 	var generatorUrl string
 	var subFolder string
 	switch mode {
@@ -121,8 +124,9 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 	body, err := json.Marshal(input{
 		SwaggerUrl: url,
 		Options: map[string]string{
-			"packageName":   "openapi_" + specName,
-			"isGoSubmodule": "true",
+			"packageName":        "openapi_" + specName,
+			"isGoSubmodule":      "true",
+			"generateInterfaces": "true",
 		},
 	})
 	if err != nil {
@@ -164,8 +168,8 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 		return err
 	}
 	for _, file := range reader.File {
-		// Skip go.mod and go.sum files to avoid conflicts with the main project
-		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") {
+		// Skip go.mod and go.sum files to avoid conflicts with the main project and test files as they are not well declared.
+		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") || strings.Contains(file.Name, "test") {
 			continue
 		}
 		if err := utils.SaveFile(file, g.Output, specName, subFolder); err != nil {
