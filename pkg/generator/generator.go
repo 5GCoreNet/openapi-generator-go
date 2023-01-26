@@ -23,6 +23,8 @@ type Generator struct {
 	Path string
 	// Output is the output directory for the generated code
 	Output string
+	// RootPkg is the root package name for the generated code
+	RootPkg string
 	// ExitOnFailure is a flag to exit on error
 	ExitOnFailure bool
 }
@@ -58,14 +60,14 @@ func (g *Generator) Generate(ctx context.Context, mode Mode) error {
 		return err
 	}
 	var generatorUrl string
-	var subFolder string
+	var subFolders []string
 	switch mode {
 	case ClientMode:
 		generatorUrl = utils.OpenApiClientGeneratorUrl
-		subFolder = utils.ClientSubFolder
+		subFolders = []string{utils.ClientSubFolder}
 	case ServerMode:
 		generatorUrl = utils.OpenApiGinServerGeneratorUrl
-		subFolder = utils.ServerGinSubFolder
+		subFolders = []string{utils.ServerGinSubFolder, utils.GoSubFolder}
 	default:
 		return fmt.Errorf("unknown mode: %s", mode)
 	}
@@ -74,7 +76,7 @@ func (g *Generator) Generate(ctx context.Context, mode Mode) error {
 		return err
 	}
 	for _, url := range urls {
-		err := g.generate(ctx, url, generatorUrl, subFolder)
+		err := g.generate(ctx, url, generatorUrl, subFolders)
 		if err != nil && g.ExitOnFailure {
 			return err
 		}
@@ -119,7 +121,7 @@ func retrieveUrl(url string) string {
 	)
 }
 
-func (g *Generator) generate(ctx context.Context, url string, generatorUrl string, subFolder string) error {
+func (g *Generator) generate(ctx context.Context, url string, generatorUrl string, subFolders []string) error {
 	specName := utils.GetSpecNameFromUrl(url)
 	body, err := json.Marshal(input{
 		SwaggerUrl: url,
@@ -169,10 +171,10 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 	}
 	for _, file := range reader.File {
 		// Skip go.mod and go.sum files to avoid conflicts with the main project and test files as they are not well declared.
-		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") || strings.Contains(file.Name, "test") {
+		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") || strings.Contains(file.Name, "test") || strings.Contains(file.Name, "main.go") {
 			continue
 		}
-		if err := utils.SaveFile(file, g.Output, specName, subFolder); err != nil {
+		if err := utils.SaveFile(file, g.Output, specName, subFolders, g.RootPkg); err != nil {
 			return err
 		}
 	}

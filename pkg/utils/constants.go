@@ -18,6 +18,8 @@ const (
 	OpenApiGinServerGeneratorUrl = "https://api.openapi-generator.tech/api/gen/servers/go-gin-server"
 	// ServerGinSubFolder is the subfolder where the generated server code is normally located in the zip file returned by the OpenAPI generator.
 	ServerGinSubFolder = "go-gin-server-server/"
+	// GoSubFolder is the subfolder where the generated go code is normally located in the zip file returned by the OpenAPI generator.
+	GoSubFolder = "go/"
 	// ClientSubFolder is the subfolder where the generated client code is normally located in the zip file returned by the OpenAPI generator.
 	ClientSubFolder = "go-client/"
 )

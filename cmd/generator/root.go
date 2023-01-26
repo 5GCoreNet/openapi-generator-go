@@ -17,6 +17,7 @@ var (
 	ref             string
 	path            string
 	output          string
+	rootPkg         string
 	exitOnFailure   bool
 )
 
@@ -33,5 +34,6 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&ref, "ref", utils.DefaultRef, "Commit hash or branch name of the OpenAPI specification repository")
 	rootCmd.PersistentFlags().StringVar(&path, "path", utils.DefaultPath, "Path to the OpenAPI specification folder under the repository")
 	rootCmd.PersistentFlags().StringVar(&output, "output", "", "Output directory for the generated code")
+	rootCmd.PersistentFlags().StringVar(&rootPkg, "root-pkg", "", "Root package name for the generated code")
 	rootCmd.PersistentFlags().BoolVar(&exitOnFailure, "exit-on-failure", true, "Exit on failure")
 }
