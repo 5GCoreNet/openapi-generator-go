@@ -169,11 +169,16 @@ func (g *Generator) generate(ctx context.Context, url string, generatorUrl strin
 	if err != nil {
 		return err
 	}
+	files := make(map[string]bool)
 	for _, file := range reader.File {
 		// Skip go.mod and go.sum files to avoid conflicts with the main project and test files as they are not well declared.
 		if strings.HasSuffix(file.Name, ".mod") || strings.HasSuffix(file.Name, ".sum") || strings.Contains(file.Name, "test") || strings.Contains(file.Name, "main.go") {
 			continue
 		}
+		if files[strings.ToLower(file.Name)] {
+			file.Name = file.Name + "_" + specName
+		}
+		files[strings.ToLower(file.Name)] = true
 		if err := utils.SaveFile(file, g.Output, specName, subFolders, g.RootPkg); err != nil {
 			return err
 		}
